@@ -14,71 +14,173 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
   const stars = percentage >= 90 ? 3 : percentage >= 70 ? 2 : 1;
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-b from-[#0a0a1a] via-[#111827] to-[#0a0a1a] text-white p-6">
-      <div className="max-w-lg w-full animate-fade-in">
-        {/* Success header */}
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🏆</div>
-          <h1 className="text-3xl font-black mb-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
-            LEVEL ZAVRŠEN!
+    <div style={{ 
+      height: '100vh', 
+      width: '100vw',
+      backgroundColor: '#0a0a0a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      <div style={{
+        width: '384px',
+        backgroundColor: '#1a1a1a',
+        border: '2px solid #3b82f6',
+        padding: '1.5rem'
+      }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🏆</div>
+          <h1 style={{ 
+            fontSize: '1.25rem',
+            fontWeight: 'normal',
+            color: '#3b82f6',
+            marginBottom: '0.25rem',
+            letterSpacing: '0.05em'
+          }}>
+            LEVEL ZAVRŠEN
           </h1>
-          <p className="text-lg text-gray-300">{levelName}</p>
+          <p style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'light' }}>{levelName}</p>
         </div>
 
-        {/* Score card */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-6">
-          {/* Stars */}
-          <div className="flex justify-center gap-2 mb-4">
-            {[1, 2, 3].map(s => (
-              <span key={s} className={`text-4xl transition-all duration-500 ${s <= stars ? 'opacity-100 scale-100' : 'opacity-20 scale-75'}`}
-                style={{ transitionDelay: `${s * 0.3}s` }}>
-                ⭐
-              </span>
-            ))}
-          </div>
+        {/* Stars */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '0.75rem',
+          marginBottom: '1.5rem'
+        }}>
+          {[1, 2, 3].map(s => (
+            <span key={s} style={{ 
+              fontSize: '1.875rem',
+              opacity: s <= stars ? 1 : 0.3
+            }}>
+              ⭐
+            </span>
+          ))}
+        </div>
 
-          {/* Score */}
-          <div className="text-center mb-4">
-            <div className="text-5xl font-black text-cyan-400">{score}</div>
-            <div className="text-sm text-gray-400">od mogućih {maxScore} bodova</div>
-            <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
-              <div className="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-1000"
-                style={{ width: `${percentage}%` }} />
-            </div>
+        {/* Score */}
+        <div style={{
+          backgroundColor: '#0d0d0d',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          padding: '1rem',
+          marginBottom: '1.5rem',
+          textAlign: 'center'
+        }}>
+          <div style={{ 
+            fontSize: '1.875rem',
+            fontWeight: 'normal',
+            color: '#60a5fa',
+            marginBottom: '0.25rem'
+          }}>
+            {score}
           </div>
+          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>od {maxScore} bodova</div>
+          <div style={{ 
+            width: '100%',
+            backgroundColor: '#2a2a2a',
+            height: '4px',
+            marginTop: '0.75rem'
+          }}>
+            <div style={{ 
+              height: '4px',
+              backgroundColor: '#3b82f6',
+              width: `${percentage}%`
+            }} />
+          </div>
+        </div>
 
-          {/* Completion message */}
-          <div className="bg-green-900/30 border border-green-500/30 rounded-xl p-4 mb-4">
-            <p className="text-green-300 text-sm">{completionMessage}</p>
-          </div>
+        {/* Message */}
+        <div style={{
+          backgroundColor: '#1e3a8a',
+          border: '1px solid #1e40af',
+          padding: '0.75rem',
+          marginBottom: '1.5rem'
+        }}>
+          <p style={{ 
+            fontSize: '0.75rem',
+            color: '#bfdbfe',
+            lineHeight: '1.5',
+            fontWeight: 'light',
+            margin: 0
+          }}>
+            {completionMessage}
+          </p>
+        </div>
 
-          {/* Educational note */}
-          <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-4">
-            <p className="text-blue-300 text-xs leading-relaxed">{educationalNote}</p>
-          </div>
+        {/* Educational Note */}
+        <div style={{
+          backgroundColor: '#0d0d0d',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          padding: '0.75rem',
+          marginBottom: '1.5rem'
+        }}>
+          <p style={{ 
+            fontSize: '0.75rem',
+            color: '#93c5fd',
+            lineHeight: '1.5',
+            fontWeight: 'light',
+            margin: 0
+          }}>
+            {educationalNote}
+          </p>
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-4">
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
             onClick={onLevelSelect}
-            className="flex-1 py-3 bg-white/10 text-white font-bold rounded-xl border border-white/20 
-                       hover:bg-white/20 transition-all cursor-pointer"
+            style={{
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: '#2a2a2a',
+              color: 'white',
+              fontSize: '0.75rem',
+              fontWeight: 'normal',
+              border: '1px solid #4b5563',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3a3a3a')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2a2a2a')}
           >
-            📋 Leveli
+            Leveli
           </button>
           {!isLastLevel && (
             <button
               onClick={onNextLevel}
-              className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl 
-                         hover:from-blue-500 hover:to-cyan-500 transition-all hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] cursor-pointer"
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                fontSize: '0.75rem',
+                fontWeight: 'normal',
+                border: '1px solid #3b82f6',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
             >
-              Sljedeći Level →
+              Sljedeći
             </button>
           )}
           {isLastLevel && (
-            <div className="flex-1 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 text-white font-bold rounded-xl text-center">
-              🎉 Svi leveli završeni!
+            <div style={{
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: '#16a34a',
+              color: 'white',
+              fontSize: '0.75rem',
+              fontWeight: 'normal',
+              border: '1px solid #16a34a',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              Gotovo!
             </div>
           )}
         </div>

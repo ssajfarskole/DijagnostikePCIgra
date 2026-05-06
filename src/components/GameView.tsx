@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { ToolId, ComponentState, LogEntry, ComponentId, ComponentStatus } from '../types';
+import { ToolId, ComponentState, LogEntry, ComponentId, ComponentStatus, Fix } from '../types';
 import { TOOLS } from '../types';
 import { getLevel } from '../gameData';
 import PCCase from './PCCase';
@@ -10,6 +10,10 @@ function getDisconnectedPowerCables(components: ComponentState[]): string[] {
   return components
     .filter(comp => PSU_POWER_CABLE_IDS.includes(comp.id as typeof PSU_POWER_CABLE_IDS[number]) && comp.status !== 'working')
     .map(comp => comp.name);
+}
+
+function getFixKey(fix: Fix): string {
+  return `${fix.componentId}_${fix.toolId}_${fix.targetStatus}`;
 }
 
 function resolveDiagnosticMessage(
@@ -73,13 +77,19 @@ function getExpectedFinalStates(level: ReturnType<typeof getLevel>): Partial<Rec
   return expected;
 }
 
+function areAllRemovedComponentsRestored(components: ComponentState[]): boolean {
+  return components.every(c => c.status !== 'removed');
+}
+
 function isLevelSolved(level: ReturnType<typeof getLevel>, components: ComponentState[]): boolean {
   const expected = getExpectedFinalStates(level);
 
-  return Object.entries(expected).every(([componentId, expectedStatus]) => {
+  const allExpected = Object.entries(expected).every(([componentId, expectedStatus]) => {
     const component = components.find(c => c.id === componentId);
     return component?.status === expectedStatus;
   });
+
+  return allExpected && areAllRemovedComponentsRestored(components);
 }
 
 interface Props {
@@ -118,6 +128,26 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     setRemovedComponents(new Set(removed));
   }, [components]);
 
+  const validateAllSteps = useCallback((currentComponents: ComponentState[]) => {
+    setAppliedFixes(prev => {
+      const next = new Set(prev);
+      let changed = false;
+
+      for (const fix of level.fixes) {
+        const fixKey = getFixKey(fix);
+        if (next.has(fixKey)) continue;
+
+        const component = currentComponents.find(c => c.id === fix.componentId);
+        if (component && component.status === fix.targetStatus) {
+          next.add(fixKey);
+          changed = true;
+        }
+      }
+
+      return changed ? next : prev;
+    });
+  }, [level]);
+
   // Auto-scroll log
   useEffect(() => {
     if (logRef.current) {
@@ -136,24 +166,16 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       addLog('🎉 PC se uspješno pali! Svi problemi su riješeni.', 'success');
       setCompleted(true);
       setTimeout(() => onLevelComplete(score), 1500);
-    } else {
-      const psu = components.find(c => c.id === 'psu');
-      const powerChainHasIssue = components.some(c =>
-        ['mainPowerCable', 'cpuMboCable', 'cpuPowerCable', 'gpuPowerCable', 'sataCable1', 'sataCable2'].includes(c.id) && c.status !== 'working'
-      );
-
-      if (psu?.status !== 'working') {
-        addLog('❌ PC se ne može uključiti, kvar nije otklonjen!', 'error');
-        return;
-      }
-
-      if (powerChainHasIssue) {
-        addLog('❌ PC se ne može uključiti, kvar nije otklonjen!', 'error');
-        return;
-      }
-
-      addLog('❌ PC se ne može uključiti, kvar nije otklonjen!', 'error');
+      return;
     }
+
+    const missingItems = components.filter(c => c.status === 'removed');
+    if (missingItems.length > 0) {
+      addLog('❌ PC se ne može uključiti dok sve uklonjene komponente i kablovi nisu vraćeni.', 'error');
+      return;
+    }
+
+    addLog('❌ PC se ne može uključiti, kvar nije otklonjen!', 'error');
   }, [level, components, actionCount, hintUsed, addLog, onLevelComplete]);
 
   const handleComponentClick = useCallback((componentId: string) => {
@@ -205,8 +227,12 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         }
         const cpuMboCable = components.find(c => c.id === 'cpuMboCable');
         const cpuPowerCable = components.find(c => c.id === 'cpuPowerCable');
-        if (cpuMboCable?.status !== 'removed' || cpuPowerCable?.status !== 'removed') {
-          addLog('❌ Prvo odspojite oba CPU napojća kablova (8-pin i 4-pin) odvijačem!', 'warning');
+        const cpuCables = [cpuMboCable, cpuPowerCable].filter(Boolean) as ComponentState[];
+        if (cpuCables.some(cable => cable.status !== 'removed')) {
+          const cableNames = cpuCables.length === 2
+            ? 'oba CPU napojća kabela (8-pin i 4-pin)'
+            : `${cpuCables[0].name}`;
+          addLog(`❌ Prvo odspojite ${cableNames} odvijačem!`, 'warning');
           return;
         }
       }
@@ -219,8 +245,12 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       if (fix.componentId === 'cpuFan' && fix.toolId === 'screwdriver') {
         const cpuMboCable = components.find(c => c.id === 'cpuMboCable');
         const cpuPowerCable = components.find(c => c.id === 'cpuPowerCable');
-        if (cpuMboCable?.status !== 'removed' || cpuPowerCable?.status !== 'removed') {
-          addLog('❌ Prvo odspojite oba CPU napojća kablova (8-pin i 4-pin) odvijačem!', 'warning');
+        const cpuCables = [cpuMboCable, cpuPowerCable].filter(Boolean) as ComponentState[];
+        if (cpuCables.some(cable => cable.status !== 'removed')) {
+          const cableNames = cpuCables.length === 2
+            ? 'oba CPU napojća kabela (8-pin i 4-pin)'
+            : `${cpuCables[0].name}`;
+          addLog(`❌ Prvo odspojite ${cableNames} odvijačem!`, 'warning');
           return;
         }
       }
@@ -284,9 +314,8 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         }
       }
       if (fix.toolId === 'hand') {
-        // Hand tool is for returning removed components
-        if (comp.status !== 'removed') {
-          addLog('❌ Ova komponenta već nije uklonjena!', 'warning');
+        if (comp.status === fix.targetStatus) {
+          addLog('❌ Ova komponenta već je vraćena!', 'warning');
           return;
         }
       }
@@ -329,12 +358,13 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
 
       // Apply fix!
       const fixKey = `${fix.componentId}_${fix.toolId}_${fix.targetStatus}`;
-      setAppliedFixes(prev => new Set([...prev, fixKey]));
       
-      // Also mark the component as fixed in our state
-      setComponents(prev => prev.map(c => 
+      // Mark the component as fixed in our state
+      const nextComponents = components.map(c => 
         c.id === fix.componentId ? { ...c, status: fix.targetStatus } : c
-      ));
+      );
+      setComponents(nextComponents);
+      validateAllSteps(nextComponents);
 
       addLog(fix.description, 'success');
       return;
@@ -351,8 +381,12 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       if (comp.id === 'cpuFan') {
         const cpuMboCable = components.find(c => c.id === 'cpuMboCable');
         const cpuPowerCable = components.find(c => c.id === 'cpuPowerCable');
-        if (cpuMboCable?.status !== 'removed' || cpuPowerCable?.status !== 'removed') {
-          addLog('❌ Prvo odspojite oba CPU napojća kablova (8-pin i 4-pin) odvijačem!', 'warning');
+        const cpuCables = [cpuMboCable, cpuPowerCable].filter(Boolean) as ComponentState[];
+        if (cpuCables.some(cable => cable.status !== 'removed')) {
+          const cableNames = cpuCables.length === 2
+            ? 'oba CPU napojća kabela (8-pin i 4-pin)'
+            : `${cpuCables[0].name}`;
+          addLog(`❌ Prvo odspojite ${cableNames} odvijačem!`, 'warning');
           return;
         }
       }
@@ -381,7 +415,9 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         // No prerequisites for case fan
       }
       
-      setComponents(prev => prev.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c));
+      const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c);
+      setComponents(nextComponents);
+      validateAllSteps(nextComponents);
       addLog(`✅ ${comp.name} je odvojena odvijačem!`, 'success');
       return;
     }
@@ -390,18 +426,26 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       if (selectedTool === 'screwdriver' && comp.status !== 'removed') {
         const cpuMboCable = components.find(c => c.id === 'cpuMboCable');
         const cpuPowerCable = components.find(c => c.id === 'cpuPowerCable');
-        if (cpuMboCable?.status !== 'removed' || cpuPowerCable?.status !== 'removed') {
-          addLog('❌ Prvo odspojite oba CPU napojća kablova (8-pin i 4-pin) odvijačem!', 'warning');
+        const cpuCables = [cpuMboCable, cpuPowerCable].filter(Boolean) as ComponentState[];
+        if (cpuCables.some(cable => cable.status !== 'removed')) {
+          const cableNames = cpuCables.length === 2
+            ? 'oba CPU napojća kabela (8-pin i 4-pin)'
+            : `${cpuCables[0].name}`;
+          addLog(`❌ Prvo odspojite ${cableNames} odvijačem!`, 'warning');
           return;
         }
 
-        setComponents(prev => prev.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c));
+        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c);
+        setComponents(nextComponents);
+        validateAllSteps(nextComponents);
         addLog('✅ CPU hladnjak je odvojen od procesora!', 'success');
         return;
       }
 
       if (selectedTool === 'hand' && comp.status === 'removed') {
-        setComponents(prev => prev.map(c => c.id === comp.id ? { ...c, status: 'working' } : c));
+        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'working' } : c);
+        setComponents(nextComponents);
+        validateAllSteps(nextComponents);
         addLog('✅ CPU hladnjak je vraćen i pričvršćen na CPU!', 'success');
         return;
       }
@@ -481,6 +525,11 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       return;
     }
 
+    if (selectedTool === 'hand' && comp.status === 'removed') {
+      handleReattach(componentId);
+      return;
+    }
+
     if (selectedTool === 'replacement' && comp.status === 'removed') {
       const replacementFix = level.fixes.find(
         fix => fix.componentId === componentId && fix.toolId === 'replacement' && fix.targetStatus === 'working'
@@ -522,20 +571,17 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     const handFix = level.fixes.find(
       fix => fix.componentId === componentId && fix.toolId === 'hand' && fix.targetStatus === 'working'
     );
-    if (!handFix) {
-      addLog(`❌ ${comp.name} se ne može vratiti na taj način. Pokušajte s drugim alatom ili redoslijedom rada.`, 'warning');
-      return;
-    }
 
     setActionCount(prev => prev + 1);
     setComponents(prev => prev.map(c => 
       c.id === componentId ? { ...c, status: 'working' } : c
     ));
-    
-    // Allow re-attachment even if fix was already applied (for re-disconnected components)
-    const fixKey = `${handFix.componentId}_${handFix.toolId}_${handFix.targetStatus}`;
-    if (!appliedFixes.has(fixKey)) {
-      setAppliedFixes(prev => new Set([...prev, fixKey]));
+
+    if (handFix) {
+      const fixKey = getFixKey(handFix);
+      if (!appliedFixes.has(fixKey)) {
+        setAppliedFixes(prev => new Set([...prev, fixKey]));
+      }
     }
 
     addLog(`✋ ${comp.name} vraćen na mjesto! Sada možete nastaviti s popravkom.`, 'success');
@@ -678,9 +724,10 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           {/* TASK LIST (PCBS2 style) */}
           <div className="p-3 bg-[#111827]/50">
             <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">📋 Zadaci</span>
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-2 space-y-1.5 max-h-[200px] overflow-y-auto">
               {level.fixes.map((f, i) => {
-                const isDone = i < appliedFixes.size;
+                const fixKey = getFixKey(f);
+                const isDone = appliedFixes.has(fixKey);
                 return (
                   <div key={i} className={`flex items-center gap-2 text-[10px] ${isDone ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
                     <div className={`w-3 h-3 rounded-sm border ${isDone ? 'bg-cyan-500 border-cyan-400' : 'border-gray-600'}`}>
@@ -690,6 +737,13 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
                   </div>
                 );
               })}
+              {/* Power button as final step */}
+              <div className={`flex items-center gap-2 text-[10px] ${isPoweredOn ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                <div className={`w-3 h-3 rounded-sm border ${isPoweredOn ? 'bg-cyan-500 border-cyan-400' : 'border-gray-600'}`}>
+                  {isPoweredOn && '✓'}
+                </div>
+                <span>Korak {level.fixes.length + 1}</span>
+              </div>
             </div>
           </div>
 

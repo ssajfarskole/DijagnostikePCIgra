@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import MainMenu from './components/MainMenu';
 import LevelSelect from './components/LevelSelect';
 import GameView from './components/GameView';
@@ -12,6 +12,26 @@ export default function App() {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [completedLevels, setCompletedLevels] = useState<number[]>([]);
   const [lastScore, setLastScore] = useState(0);
+
+  // Load progress from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('pcDiagnosticsProgress');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setCompletedLevels(parsed);
+        }
+      } catch (e) {
+        console.error('Failed to parse saved progress:', e);
+      }
+    }
+  }, []);
+
+  // Save progress to localStorage whenever completedLevels changes
+  useEffect(() => {
+    localStorage.setItem('pcDiagnosticsProgress', JSON.stringify(completedLevels));
+  }, [completedLevels]);
 
   const handleStart = useCallback(() => {
     setScreen('levelSelect');

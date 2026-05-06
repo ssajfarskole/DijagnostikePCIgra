@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --color-case-bg: #1a1a2e;
   --color-case-frame: #2d2d44;
   --color-motherboard: #0d5c2e;
@@ -10,7 +10,7 @@
   --color-panel-border: #374151;
   --color-tool-hover: #1f2937;
   --color-tool-selected: #1e3a5f;
-  --color-success: #10b981;
+  --color-success: #3b82f6;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;

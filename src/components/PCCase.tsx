@@ -60,12 +60,18 @@ export default function PCCase({
         <button
           onClick={onPowerOn}
           className={`absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer z-20 border
-            ${isPoweredOn
-              ? 'bg-green-500 border-green-300 shadow-[0_0_18px_rgba(34,197,94,0.75)] hover:bg-green-400'
-              : 'bg-red-600 border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)] hover:bg-red-500'}`}
-          title="Ukljuci PC"
+            ${
+              isPoweredOn
+                ? 'bg-green-500 border-green-300 shadow-[0_0_18px_rgba(34,197,94,0.75)] hover:bg-green-400'
+                : canPowerOn
+                  ? 'bg-blue-500 border-blue-300 shadow-[0_0_18px_rgba(59,130,246,0.75)] hover:bg-blue-400 animate-pulse'
+                  : 'bg-red-600 border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)] hover:bg-red-500'
+            }`}
+          title={isPoweredOn ? 'PC je uključen' : canPowerOn ? 'PC spreman za uključivanje - klikni da upališ' : 'PC nije spreman za uključivanje'}
         >
-          <span className={`text-sm ${isPoweredOn ? 'text-green-100' : 'text-red-200'}`}>⏻</span>
+          <span className={`text-sm ${
+            isPoweredOn ? 'text-green-100' : canPowerOn ? 'text-blue-100' : 'text-red-200'
+          }`}>⏻</span>
         </button>
 
         <div className="absolute inset-1 bg-gradient-to-b from-[#1a1a28] to-[#151522] rounded" />
@@ -116,12 +122,20 @@ export default function PCCase({
               onClick={() => (cpuMboCable?.status === 'removed' ? handleRemovedInteraction('cpuMboCable') : onComponentClick('cpuMboCable'))}
               title="CPU MBO kabel - spoj na matičnu ploču"
             >
-              <div className="absolute inset-y-[24%] left-[8%] w-[8%] rounded-full bg-slate-600/70" />
-              <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-[14%] w-[32%] rounded-full bg-gradient-to-r from-slate-950 via-slate-800 to-slate-700 opacity-95" />
-              <div className="absolute inset-y-[22%] right-[8%] w-[12%] rounded-sm bg-slate-700/80" />
-              <span className="absolute left-[14%] top-1/2 -translate-y-1/2 text-[5.5px] font-mono font-bold tracking-[0.18em] text-slate-100 drop-shadow-[0_0_3px_rgba(0,0,0,0.8)]">
-                CPU MBO
-              </span>
+              {cpuMboCable?.status === 'removed' ? (
+                <div className="absolute inset-0 pointer-events-none border border-dashed border-gray-500/50 rounded-sm bg-black/20 flex items-center justify-center">
+                  <span className="text-[8px] text-gray-400 font-bold tracking-widest">SLOT</span>
+                </div>
+              ) : (
+                <>
+                  <div className="absolute inset-y-[24%] left-[8%] w-[8%] rounded-full bg-slate-600/70" />
+                  <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-[14%] w-[32%] rounded-full bg-gradient-to-r from-slate-950 via-slate-800 to-slate-700 opacity-95" />
+                  <div className="absolute inset-y-[22%] right-[8%] w-[12%] rounded-sm bg-slate-700/80" />
+                  <span className="absolute left-[14%] top-1/2 -translate-y-1/2 text-[5.5px] font-mono font-bold tracking-[0.18em] text-slate-100 drop-shadow-[0_0_3px_rgba(0,0,0,0.8)]">
+                    CPU MBO
+                  </span>
+                </>
+              )}
             </button>
 
             <button
@@ -130,12 +144,20 @@ export default function PCCase({
               onClick={() => (cpuPowerCable?.status === 'removed' ? handleRemovedInteraction('cpuPowerCable') : onComponentClick('cpuPowerCable'))}
               title="CPU KBL - 8-pinski CPU kabel napajanja"
             >
-              <div className="absolute inset-y-[24%] left-[8%] w-[8%] rounded-full bg-slate-600/70" />
-              <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-[14%] w-[32%] rounded-full bg-gradient-to-r from-slate-950 via-slate-800 to-slate-700 opacity-95" />
-              <div className="absolute inset-y-[22%] right-[8%] w-[12%] rounded-sm bg-slate-700/80" />
-              <span className="absolute left-[14%] top-1/2 -translate-y-1/2 text-[5.5px] font-mono font-bold tracking-[0.18em] text-slate-100 drop-shadow-[0_0_3px_rgba(0,0,0,0.8)]">
-                CPU KBL
-              </span>
+              {cpuPowerCable?.status === 'removed' ? (
+                <div className="absolute inset-0 pointer-events-none border border-dashed border-gray-500/50 rounded-sm bg-black/20 flex items-center justify-center">
+                  <span className="text-[8px] text-gray-400 font-bold tracking-widest">SLOT</span>
+                </div>
+              ) : (
+                <>
+                  <div className="absolute inset-y-[24%] left-[8%] w-[8%] rounded-full bg-slate-600/70" />
+                  <div className="absolute left-[20%] top-1/2 -translate-y-1/2 h-[14%] w-[32%] rounded-full bg-gradient-to-r from-slate-950 via-slate-800 to-slate-700 opacity-95" />
+                  <div className="absolute inset-y-[22%] right-[8%] w-[12%] rounded-sm bg-slate-700/80" />
+                  <span className="absolute left-[14%] top-1/2 -translate-y-1/2 text-[5.5px] font-mono font-bold tracking-[0.18em] text-slate-100 drop-shadow-[0_0_3px_rgba(0,0,0,0.8)]">
+                    CPU KBL
+                  </span>
+                </>
+              )}
             </button>
             <div className="absolute left-[60%] top-[12%] flex gap-[2%] w-[31%] h-[28%]">
               {[0, 1, 2, 3].map(i => {
@@ -316,7 +338,7 @@ export default function PCCase({
               {comp.id === 'cpuFan' && comp.status !== 'removed' && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="relative w-12 h-12 rounded-full border-2 border-slate-500 bg-[radial-gradient(circle,rgba(255,255,255,0.15),rgba(15,23,42,0.85))] shadow-inner">
-                    <div className={`absolute inset-1 rounded-full border border-slate-400/60 ${comp.status === 'dusty' ? 'animate-spin-slow' : 'animate-spin-slower'}`}>
+                    <div className={`absolute inset-1 rounded-full border border-slate-400/60 ${isPoweredOn && (comp.status === 'dusty' ? 'animate-spin-slow' : 'animate-spin-slower')}`}>
                       <div className="absolute left-1/2 top-1 bottom-1 w-[2px] -translate-x-1/2 bg-slate-300/80" />
                       <div className="absolute left-1/2 top-1 bottom-1 w-[2px] -translate-x-1/2 bg-slate-300/80 rotate-45" />
                       <div className="absolute left-1/2 top-1 bottom-1 w-[2px] -translate-x-1/2 bg-slate-300/80 rotate-90" />
@@ -330,7 +352,7 @@ export default function PCCase({
 
               {comp.id === 'caseFan' && comp.status !== 'removed' && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="relative w-9 h-9 rounded-full border border-blue-400/50 bg-[radial-gradient(circle,rgba(148,163,184,0.14),rgba(15,23,42,0.9))] shadow-inner animate-spin-slower">
+                  <div className={`relative w-9 h-9 rounded-full border border-blue-400/50 bg-[radial-gradient(circle,rgba(148,163,184,0.14),rgba(15,23,42,0.9))] shadow-inner ${isPoweredOn ? 'animate-spin-slower' : ''}`}>
                     <div className="absolute inset-1 rounded-full border border-blue-300/30" />
                     <div className="absolute left-1/2 top-1 bottom-1 w-[2px] -translate-x-1/2 bg-blue-300/50" />
                     <div className="absolute left-1/2 top-1 bottom-1 w-[2px] -translate-x-1/2 bg-blue-300/50 rotate-60" />
@@ -347,7 +369,7 @@ export default function PCCase({
                     {[0, 1].map(i => (
                       <div
                         key={i}
-                        className="relative w-12 h-12 rounded-full border border-slate-500/50 bg-[radial-gradient(circle,rgba(148,163,184,0.18),rgba(15,23,42,0.95))] animate-spin-slower"
+                        className={`relative w-12 h-12 rounded-full border border-slate-500/50 bg-[radial-gradient(circle,rgba(148,163,184,0.18),rgba(15,23,42,0.95))] ${isPoweredOn ? 'animate-spin-slower' : ''}`}
                       >
                         <div className="absolute inset-[28%] rounded-full bg-slate-700/90" />
                         <div className="absolute inset-1 rounded-full border border-slate-400/20" />
@@ -364,7 +386,7 @@ export default function PCCase({
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute left-2 top-1/2 -translate-y-1/2 w-24 h-12 rounded-sm border border-slate-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 shadow-[inset_0_0_14px_rgba(0,0,0,0.5)] flex items-center justify-center">
                     <div className="absolute left-2 top-2 text-[5px] text-slate-400 font-mono tracking-[0.3em]">MODULAR PSU</div>
-                    <div className="absolute right-2 bottom-2 w-5 h-5 rounded-full border border-slate-500/50 bg-[radial-gradient(circle,rgba(148,163,184,0.18),rgba(15,23,42,0.95))] animate-spin-slower">
+                    <div className={`absolute right-2 bottom-2 w-5 h-5 rounded-full border border-slate-500/50 bg-[radial-gradient(circle,rgba(148,163,184,0.18),rgba(15,23,42,0.95))] ${isPoweredOn ? 'animate-spin-slower' : ''}`}>
                       <div className="absolute inset-[25%] rounded-full bg-slate-700/80" />
                     </div>
                   </div>
