@@ -1,19 +1,33 @@
 @import "tailwindcss";
 
+
+
 :root {
-  --color-case-bg: #1a1a2e;
-  --color-case-frame: #2d2d44;
-  --color-motherboard: #0d5c2e;
-  --color-motherboard-trace: #1a8a45;
-  --color-desk-bg: #1c1c1c;
-  --color-panel-bg: #111827;
-  --color-panel-border: #374151;
-  --color-tool-hover: #1f2937;
-  --color-tool-selected: #1e3a5f;
-  --color-success: #3b82f6;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  /* base */
+  --color-desk-bg: #14171c;            /* tamniji, manje plav */
+  --color-panel-bg: #1b2130;           /* malo topliji ton */
+  --color-panel-border: #2a3142;
+
+  /* PC kućište */
+  --color-case-bg: #181c23;
+  --color-case-frame: #2b3240;
+
+  /* motherboard (realističnija zelena) */
+  --color-motherboard: #1f4d3a;
+  --color-motherboard-trace: #2f7a5a;
+
+  /* UI states */
+  --color-tool-hover: #232a3a;
+  --color-tool-selected: #2d4366;
+
+  /* status (manje "neon") */
+  --color-success: #4ade80;   /* mekša zelena */
+  --color-warning: #eab308;   /* malo “industrijska” */
+  --color-error: #f87171;     /* manje agresivna */
+  --color-info: #60a5fa;
+
+  /* accent (ključna stvar!) */
+  --color-accent: #22c3a6;    /* teal umjesto default blue */
 }
 
 * {
@@ -24,7 +38,7 @@ body {
   margin: 0;
   padding: 0;
   background: var(--color-desk-bg);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   overflow: hidden;
   height: 100vh;
 }
@@ -76,8 +90,8 @@ body {
 }
 
 @keyframes title-glow {
-  0%, 100% { text-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3); }
-  50% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3); }
+  0%, 100% { text-shadow: 0 0 8px rgba(34, 195, 166, 0.4); }
+  50% { text-shadow: 0 0 16px rgba(34, 195, 166, 0.6); }
 }
 
 @keyframes float {
@@ -156,11 +170,11 @@ body {
 
 /* Component hover effect */
 .pc-component {
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 .pc-component:hover {
-  filter: brightness(1.3);
+  filter: brightness(1.1);
   transform: scale(1.02);
   z-index: 10;
 }
@@ -175,6 +189,6 @@ body {
 }
 .tool-btn.selected {
   background: var(--color-tool-selected);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-  border-color: #3b82f6;
+  box-shadow: 0 0 8px rgba(34, 195, 166, 0.35);
+  border-color: var(--color-accent);
 }

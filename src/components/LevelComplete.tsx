@@ -26,7 +26,7 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
       <div style={{
         width: '384px',
         backgroundColor: '#1a1a1a',
-        border: '2px solid #3b82f6',
+        border: '2px solid #22c3a6',
         padding: '1.5rem'
       }}>
         {/* Header */}
@@ -35,7 +35,7 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
           <h1 style={{ 
             fontSize: '1.25rem',
             fontWeight: 'normal',
-            color: '#3b82f6',
+            color: '#22c3a6',
             marginBottom: '0.25rem',
             letterSpacing: '0.05em'
           }}>
@@ -64,7 +64,7 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
         {/* Score */}
         <div style={{
           backgroundColor: '#0d0d0d',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
+          border: '1px solid rgba(34, 195, 166, 0.3)',
           padding: '1rem',
           marginBottom: '1.5rem',
           textAlign: 'center'
@@ -72,7 +72,7 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
           <div style={{ 
             fontSize: '1.875rem',
             fontWeight: 'normal',
-            color: '#60a5fa',
+            color: '#4db8a0',
             marginBottom: '0.25rem'
           }}>
             {score}
@@ -86,7 +86,7 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
           }}>
             <div style={{ 
               height: '4px',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#22c3a6',
               width: `${percentage}%`
             }} />
           </div>
@@ -94,14 +94,14 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
 
         {/* Message */}
         <div style={{
-          backgroundColor: '#1e3a8a',
-          border: '1px solid #1e40af',
+          backgroundColor: '#0d3d38',
+          border: '1px solid #0f332e',
           padding: '0.75rem',
           marginBottom: '1.5rem'
         }}>
           <p style={{ 
             fontSize: '0.75rem',
-            color: '#bfdbfe',
+            color: '#a3e4d8',
             lineHeight: '1.5',
             fontWeight: 'light',
             margin: 0
@@ -113,13 +113,13 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
         {/* Educational Note */}
         <div style={{
           backgroundColor: '#0d0d0d',
-          border: '1px solid rgba(59, 130, 246, 0.3)',
+          border: '1px solid rgba(34, 195, 166, 0.3)',
           padding: '0.75rem',
           marginBottom: '1.5rem'
         }}>
           <p style={{ 
             fontSize: '0.75rem',
-            color: '#93c5fd',
+            color: '#7fd9cc',
             lineHeight: '1.5',
             fontWeight: 'light',
             margin: 0
@@ -153,15 +153,15 @@ export default function LevelComplete({ levelName, score, maxScore, completionMe
               style={{
                 flex: 1,
                 padding: '0.5rem',
-                backgroundColor: '#3b82f6',
-                color: 'white',
+                backgroundColor: '#22c3a6',
+                color: '#0a0a0a',
                 fontSize: '0.75rem',
                 fontWeight: 'normal',
-                border: '1px solid #3b82f6',
+                border: '1px solid #22c3a6',
                 cursor: 'pointer'
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#18a085')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#22c3a6')}
             >
               Sljedeći
             </button>

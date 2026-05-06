@@ -89,6 +89,16 @@ function isLevelSolved(level: ReturnType<typeof getLevel>, components: Component
     return component?.status === expectedStatus;
   });
 
+  // Special case for level 5: HDD can remain removed if SSD replacement is done
+  if (level.id === 5) {
+    const hdd = components.find(c => c.id === 'hdd');
+    const ssd = components.find(c => c.id === 'ssd');
+    if (hdd?.status === 'removed' && ssd?.status === 'working') {
+      // HDD is replaced by SSD, so it's OK that HDD is removed
+      return allExpected;
+    }
+  }
+
   return allExpected && areAllRemovedComponentsRestored(components);
 }
 
@@ -129,6 +139,9 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
   }, [components]);
 
   const validateAllSteps = useCallback((currentComponents: ComponentState[]) => {
+    // Tools that require explicit user interaction and shouldn't auto-validate
+    const explicitInteractionTools = ['diagnosticDisk', 'replacement', 'thermalPaste', 'powerTester', 'postCard', 'thermalCamera'];
+    
     setAppliedFixes(prev => {
       const next = new Set(prev);
       let changed = false;
@@ -136,6 +149,11 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       for (const fix of level.fixes) {
         const fixKey = getFixKey(fix);
         if (next.has(fixKey)) continue;
+
+        // Skip auto-validation for fixes that require explicit tool usage
+        if (explicitInteractionTools.includes(fix.toolId)) {
+          continue;
+        }
 
         const component = currentComponents.find(c => c.id === fix.componentId);
         if (component && component.status === fix.targetStatus) {
@@ -200,6 +218,10 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         const sataCable1 = components.find(c => c.id === 'sataCable1');
         if (sataCable1?.status !== 'removed') {
           addLog('❌ Prvo odvijačem odsponjite SATA kabel za HDD!', 'warning');
+          return;
+        }
+        if (level.id === 5 && !diagnosedComponents.has('hdd')) {
+          addLog('❌ Prvo koristite dijagnostički disk na HDD-u da potvrdite kvar prije uklanjanja.', 'warning');
           return;
         }
       }
@@ -313,6 +335,13 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           return;
         }
       }
+      if (fix.componentId === 'hdd' && fix.toolId === 'replacement') {
+        // HDD must be removed before replacement
+        if (comp.status !== 'removed') {
+          addLog('❌ Prvo morate odvijačem izvaditi pokvareni HDD!', 'warning');
+          return;
+        }
+      }
       if (fix.toolId === 'hand') {
         if (comp.status === fix.targetStatus) {
           addLog('❌ Ova komponenta već je vraćena!', 'warning');
@@ -332,15 +361,6 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           addLog('❌ Prvo morate pripremi komponentu za zamjenu.', 'warning');
           return;
         }
-        // For components that start as working (like SSD in level 5), allow replacement without removal
-        if (comp.status === 'working' && fix.componentId === 'ssd') {
-          // This is installing a new component - check if old component is removed
-          const hdd = components.find(c => c.id === 'hdd');
-          if (hdd?.status !== 'removed') {
-            addLog('❌ Prvo morate izvaditi stari HDD prije instalacije novog SSD-a!', 'warning');
-            return;
-          }
-        }
       }
 
       if (fix.componentId === 'gpu' && fix.toolId === 'replacement' && level.id === 9) {
@@ -357,11 +377,9 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       }
 
       // Apply fix!
-      const fixKey = `${fix.componentId}_${fix.toolId}_${fix.targetStatus}`;
-      
       // Mark the component as fixed in our state
       const nextComponents = components.map(c => 
-        c.id === fix.componentId ? { ...c, status: fix.targetStatus } : c
+        c.id === fix.componentId ? { ...c, status: fix.targetStatus as ComponentStatus } : c
       );
       setComponents(nextComponents);
       validateAllSteps(nextComponents);
@@ -415,7 +433,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         // No prerequisites for case fan
       }
       
-      const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c);
+      const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' as ComponentStatus } : c);
       setComponents(nextComponents);
       validateAllSteps(nextComponents);
       addLog(`✅ ${comp.name} je odvojena odvijačem!`, 'success');
@@ -435,7 +453,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           return;
         }
 
-        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' } : c);
+        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'removed' as ComponentStatus } : c);
         setComponents(nextComponents);
         validateAllSteps(nextComponents);
         addLog('✅ CPU hladnjak je odvojen od procesora!', 'success');
@@ -443,7 +461,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       }
 
       if (selectedTool === 'hand' && comp.status === 'removed') {
-        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'working' } : c);
+        const nextComponents = components.map(c => c.id === comp.id ? { ...c, status: 'working' as ComponentStatus } : c);
         setComponents(nextComponents);
         validateAllSteps(nextComponents);
         addLog('✅ CPU hladnjak je vraćen i pričvršćen na CPU!', 'success');
@@ -459,6 +477,13 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     if (diagnostic) {
       const resolvedDiagnostic = resolveDiagnosticMessage(level.id, diagnostic, comp, components);
       setDiagnosedComponents(prev => new Set([...prev, componentId]));
+      
+      // Register diagnostic fixes as applied immediately
+      const diagnosticFix = level.fixes.find(f => f.componentId === componentId && f.toolId === selectedTool);
+      if (diagnosticFix) {
+        setAppliedFixes(prev => new Set([...prev, getFixKey(diagnosticFix)]));
+      }
+      
       addLog(resolvedDiagnostic.message, resolvedDiagnostic.type);
       return;
     }
@@ -470,34 +495,35 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
       return;
     }
 
-    if (level.id === 5 && selectedTool === 'replacement' && comp.id === 'hdd') {
+    // LEVEL 5: Special handling for HDD removal - must be diagnosed first
+    if (level.id === 5 && selectedTool === 'screwdriver' && comp.id === 'hdd') {
       if (!diagnosedComponents.has('hdd')) {
-        addLog('❌ Prvo koristite dijagnostički disk na HDD-u da potvrdite kvar prije zamjene.', 'warning');
+        addLog('❌ Prvo koristite dijagnostički disk na HDD-u da potvrdite kvar prije odvajanja.', 'warning');
         return;
       }
 
-      if (components.find(c => c.id === 'sataCable1')?.status !== 'removed') {
-        addLog('❌ Prvo odvijačem odspojite SATA kabel za HDD prije zamjene diska.', 'warning');
+      const sataCable1 = components.find(c => c.id === 'sataCable1');
+      if (sataCable1?.status !== 'removed') {
+        addLog('❌ Prvo odvijačem odsponjite SATA kabel za HDD!', 'warning');
         return;
       }
 
       setActionCount(prev => prev + 1);
-      setComponents(prev => prev.map(c => {
-        if (c.id === 'hdd') return { ...c, status: 'removed' };
-        if (c.id === 'ssd') return { ...c, status: 'working' };
-        return c;
-      }));
+      setComponents(prev => prev.map(c => 
+        c.id === 'hdd' ? { ...c, status: 'removed' as ComponentStatus } : c
+      ));
 
       setAppliedFixes(prev => {
         const next = new Set(prev);
         next.add('hdd_screwdriver_removed');
-        next.add('ssd_replacement_working');
         return next;
       });
 
-      addLog('✅ SMART dijagnostika je potvrdila kvar HDD-a. Stari disk je uklonjen i novi SSD je instaliran na njegovo mjesto!', 'success');
+      addLog('✅ Pokvareni HDD je izvađen iz kućišta s odvijačem!', 'success');
       return;
     }
+
+
 
     if (level.id === 12 && selectedTool === 'replacement' && comp.id === 'sataCable2') {
       if (!diagnosedComponents.has('sataCable2')) {
@@ -512,7 +538,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
 
       setActionCount(prev => prev + 1);
       setComponents(prev => prev.map(c => 
-        c.id === 'sataCable2' ? { ...c, status: 'working' } : c
+        c.id === 'sataCable2' ? { ...c, status: 'working' as ComponentStatus } : c
       ));
 
       setAppliedFixes(prev => {
@@ -574,7 +600,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
 
     setActionCount(prev => prev + 1);
     setComponents(prev => prev.map(c => 
-      c.id === componentId ? { ...c, status: 'working' } : c
+      c.id === componentId ? { ...c, status: 'working' as ComponentStatus } : c
     ));
 
     if (handFix) {
@@ -607,7 +633,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           </button>
           <div className="h-4 w-px bg-gray-700" />
           <div>
-            <h2 className="text-sm font-bold text-cyan-400">Level {level.id}: {level.name}</h2>
+            <h2 className="text-sm font-bold" style={{ color: '#22c3a6' }}>Level {level.id}: {level.name}</h2>
             <span className="text-[10px] text-gray-500">{level.difficulty} {'★'.repeat(level.difficultyStars)}{'☆'.repeat(3 - level.difficultyStars)}</span>
           </div>
         </div>
@@ -629,7 +655,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           {/* Score */}
           <div className="text-sm">
             <span className="text-gray-400">Bodovi: </span>
-            <span className="font-bold text-cyan-400">{Math.max(10, 100 - (actionCount * 3) - (hintUsed ? 10 : 0) + (appliedFixes.size * 5))}</span>
+            <span className="font-bold" style={{ color: '#22c3a6' }}>{Math.max(10, 100 - (actionCount * 3) - (hintUsed ? 10 : 0) + (appliedFixes.size * 5))}</span>
           </div>
           
           <div className="h-4 w-px bg-gray-700" />
@@ -682,7 +708,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
               onClick={() => setSelectedTool(selectedTool === tool.id ? null : tool.id)}
               className={`tool-btn flex flex-col items-center gap-0.5 p-1.5 rounded-lg border text-center
                 ${selectedTool === tool.id 
-                  ? 'selected bg-blue-900/40 border-blue-500/60' 
+                  ? 'selected bg-[#0d3d38]/40 border-[#22c3a6]/60' 
                   : 'bg-transparent border-transparent hover:bg-gray-800'}`}
               title={tool.description}
             >
@@ -723,14 +749,14 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           
           {/* TASK LIST (PCBS2 style) */}
           <div className="p-3 bg-[#111827]/50">
-            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">📋 Zadaci</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#22c3a6' }}>📋 Zadaci</span>
             <div className="mt-2 space-y-1.5 max-h-[200px] overflow-y-auto">
               {level.fixes.map((f, i) => {
                 const fixKey = getFixKey(f);
                 const isDone = appliedFixes.has(fixKey);
                 return (
                   <div key={i} className={`flex items-center gap-2 text-[10px] ${isDone ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
-                    <div className={`w-3 h-3 rounded-sm border ${isDone ? 'bg-cyan-500 border-cyan-400' : 'border-gray-600'}`}>
+                    <div className={`w-3 h-3 rounded-sm border ${isDone ? 'border-gray-600' : 'border-gray-600'}`} style={{ backgroundColor: isDone ? '#22c3a6' : 'transparent', borderColor: isDone ? '#22c3a6' : '#4b5563' }}>
                       {isDone && '✓'}
                     </div>
                     <span>Korak {i + 1}</span>
@@ -739,7 +765,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
               })}
               {/* Power button as final step */}
               <div className={`flex items-center gap-2 text-[10px] ${isPoweredOn ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
-                <div className={`w-3 h-3 rounded-sm border ${isPoweredOn ? 'bg-cyan-500 border-cyan-400' : 'border-gray-600'}`}>
+                <div className={`w-3 h-3 rounded-sm border ${isPoweredOn ? 'border-gray-600' : 'border-gray-600'}`} style={{ backgroundColor: isPoweredOn ? '#22c3a6' : 'transparent', borderColor: isPoweredOn ? '#22c3a6' : '#4b5563' }}>
                   {isPoweredOn && '✓'}
                 </div>
                 <span>Korak {level.fixes.length + 1}</span>
@@ -756,7 +782,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
           <div ref={logRef} className="flex-1 overflow-y-auto p-2 space-y-1">
             {log.map(entry => (
               <div key={entry.id} className={`animate-slide-in text-[11px] px-2 py-1.5 rounded-lg border-l-2
-                ${entry.type === 'info' ? 'bg-blue-900/20 border-blue-500 text-blue-200' :
+                ${entry.type === 'info' ? 'bg-[#0d3d38]/20 border-[#22c3a6] text-[#a3e4d8]' :
                   entry.type === 'warning' ? 'bg-yellow-900/20 border-yellow-500 text-yellow-200' :
                   entry.type === 'error' ? 'bg-red-900/20 border-red-500 text-red-200' :
                   entry.type === 'success' ? 'bg-green-900/20 border-green-500 text-green-200' :

@@ -17,7 +17,7 @@ export default function LevelSelect({ onSelectLevel, onBack, completedLevels }: 
         >
           ← Natrag
         </button>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, #22c3a6, #18a085)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           ODABERI LEVEL
         </h1>
         <div className="text-sm text-gray-400">
@@ -29,8 +29,11 @@ export default function LevelSelect({ onSelectLevel, onBack, completedLevels }: 
       <div className="w-full max-w-4xl mb-8">
         <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500"
-            style={{ width: `${(completedLevels.length / LEVELS.length) * 100}%` }}
+            className="h-full transition-all duration-500"
+            style={{ 
+              width: `${(completedLevels.length / LEVELS.length) * 100}%`,
+              background: 'linear-gradient(to right, #22c3a6, #18a085)'
+            }}
           />
         </div>
       </div>
@@ -50,13 +53,13 @@ export default function LevelSelect({ onSelectLevel, onBack, completedLevels }: 
                 ${isCompleted 
                   ? 'bg-green-900/30 border-green-500/50 hover:border-green-400' 
                   : isUnlocked 
-                    ? 'bg-white/5 border-white/10 hover:border-cyan-400/50 hover:bg-white/10' 
+                    ? 'bg-white/5 border-white/10 hover:border-[#22c3a6]/50 hover:bg-white/10' 
                     : 'bg-gray-900/30 border-gray-700/30 opacity-50 cursor-not-allowed'
                 }`}
             >
               {/* Level number badge */}
               <div className={`absolute -top-3 -left-3 w-10 h-10 rounded-full flex items-center justify-center text-sm font-black
-                ${isCompleted ? 'bg-green-500 text-white' : isUnlocked ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-400'}`}>
+                ${isCompleted ? 'bg-green-500 text-white' : isUnlocked ? 'text-white' : 'bg-gray-700 text-gray-400'}`} style={{ backgroundColor: isCompleted ? undefined : isUnlocked ? '#22c3a6' : undefined }}>
                 {isCompleted ? '✓' : level.id}
               </div>
 

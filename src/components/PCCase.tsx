@@ -64,13 +64,14 @@ export default function PCCase({
               isPoweredOn
                 ? 'bg-green-500 border-green-300 shadow-[0_0_18px_rgba(34,197,94,0.75)] hover:bg-green-400'
                 : canPowerOn
-                  ? 'bg-blue-500 border-blue-300 shadow-[0_0_18px_rgba(59,130,246,0.75)] hover:bg-blue-400 animate-pulse'
+                  ? 'text-white border-[#22c3a6] shadow-[0_0_18px_rgba(34,195,166,0.75)] hover:opacity-90 animate-pulse' 
                   : 'bg-red-600 border-red-500 shadow-[0_0_12px_rgba(239,68,68,0.45)] hover:bg-red-500'
             }`}
+          style={canPowerOn && !isPoweredOn ? { backgroundColor: '#22c3a6' } : {}}
           title={isPoweredOn ? 'PC je uključen' : canPowerOn ? 'PC spreman za uključivanje - klikni da upališ' : 'PC nije spreman za uključivanje'}
         >
           <span className={`text-sm ${
-            isPoweredOn ? 'text-green-100' : canPowerOn ? 'text-blue-100' : 'text-red-200'
+            isPoweredOn ? 'text-green-100' : canPowerOn ? 'text-gray-900' : 'text-red-200'
           }`}>⏻</span>
         </button>
 
@@ -489,7 +490,10 @@ export default function PCCase({
 
                   onComponentClick(id);
                 }}
-                className="flex items-center gap-1 px-2 py-1 bg-blue-900/50 hover:bg-blue-800/70 border border-blue-500/50 text-xs rounded-lg transition-all text-white shadow-md hover:shadow-blue-500/25"
+                className="flex items-center gap-1 px-2 py-1 border text-xs rounded-lg transition-all text-white shadow-md"
+                style={{ backgroundColor: 'rgba(34, 195, 166, 0.2)', borderColor: 'rgba(34, 195, 166, 0.5)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(34, 195, 166, 0.3)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(34, 195, 166, 0.2)')}
                 title={selectedTool ? `${getToolName(selectedTool)} na ${comp.name}` : `Vrati ${comp.name}`}
               >
                 <span className="text-sm leading-none">{comp.icon}</span>
@@ -567,7 +571,7 @@ function getShortName(id: string): string {
     case 'hdd': return 'HDD';
     case 'ssd': return 'SSD';
     case 'cmosBattery': return 'CMOS';
-    case 'caseFan': return 'CASE FAN';
+    case 'caseFan': return 'VENTILATOR';
     default: return id.slice(0, 4);
   }
 }

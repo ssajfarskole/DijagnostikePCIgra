@@ -32,7 +32,7 @@ export const LEVELS: LevelData[] = [
   // LEVEL 1
   {
     id: 1,
-    name: 'Crni ekran - Računalo se ne pali',
+    name: 'Potpuni mrak',
     description: 'Klijent je donio računalo koje se uopće ne pali. Kad pritisnete gumb za paljenje, ništa se ne događa.',
     symptoms: [
       '⚫ Kada pritiskate gumb za paljenje, ništa se ne događa.',
@@ -161,7 +161,7 @@ export const LEVELS: LevelData[] = [
   // LEVEL 2
   {
     id: 2,
-    name: 'Računalo se pokreće, ali nešto ne valja.',
+    name: 'Beskonačna petlja',
     description: 'Računalo se pali, ali prije nego što uđe u Windows pojavi se plavi ekran s greškom. Čuju se 3 duga piska kod pokretanja.',
     symptoms: [
       '🔵 Pri pokretanju se pojavljuje plavi ekran.',
@@ -203,7 +203,7 @@ export const LEVELS: LevelData[] = [
   // LEVEL 3
   {
     id: 3,
-    name: 'Pregrijavanje procesora',
+    name: 'Vruća kriza',
     description: 'Računalo se pali normalno, ali se gasi nakon 15-30 minuta korištenja. Ventilator procesora jako i neobično zuji.',
     symptoms: [
       '🌡️ Nakon 15-30 minuta korištenja, računalo se gasi samo od sebe.',
@@ -283,14 +283,14 @@ export const LEVELS: LevelData[] = [
       { componentId: 'motherboard', toolId: 'magnifier', message: '🔍 Matična ploča izgleda fizički u redu. Svi kondenzatori su intaktni.', type: 'info' },
     ],
     completionMessage: '🏆 Fantastično! Očistili ste CPU hladnjak od prašine, nanijeli novu termalnu pastu i ponovno spojili sve kablove! CPU temperatura je sada 45°C i sustav je stabilan!',
-    educationalNote: '📖 Pregrijavanje je jedan od najčešćih problema u starijim računalima. Uzroci: 1) Suha termalna pasta (mijenja se svakih 2-3 godine), 2) Prašina u hladnjaku koja blokira protok zraka, 3) Labavi kablovi napajanja koji smanjuju napon. CPU ima termalno šutilo na ~100°C i automatski gasi se da se ne bi ošteti. Redoslijed rješavanja: odvajanje kabela → uklanjanje hladnjaka → čišćenje → nova pasta → ponovno montiranje.',
+    educationalNote: '📖 Pregrijavanje je jedan od najčešćih problema u starijim računalima. Uzroci: 1) Suha termalna pasta (mijenja se svakih 2-3 godine), 2) Prašina u hladnjaku koja blokira protok zraka, 3) Labavi kablovi napajanja koji smanjuju napon. CPU radi thermal throttling na ~100°C i automatski gasi se da se ne bi ošteti. Redoslijed rješavanja: odvajanje kabela → uklanjanje hladnjaka → čišćenje → nova pasta → ponovno montiranje.',
     hint: '💡 Redoslijed je BITAN! Prvo odspojite oba CPU napojća kablova, zatim odvijačem uklonite hladnjak, očistite ga zrakom, nanijsite pastu na CPU, vratite hladnjak i konačno ponovno spojite kablove!',
   },
 
   // LEVEL 4
   {
     id: 4,
-    name: 'Nema slike na monitoru',
+    name: 'Prazan ekran',
     description: 'Računalo se pali, čuju se normalni zvukovi pokretanja, ali na monitoru nema slike. Monitor prikazuje "No Signal".',
     symptoms: [
       '📺 Monitor prikazuje poruku "No Signal".',
@@ -355,7 +355,7 @@ export const LEVELS: LevelData[] = [
     ],
     difficulty: 'Srednje',
     difficultyStars: 2,
-    components: makeComponents({ hdd: 'failing', sataCable1: 'loose', ssd: 'removed' }),
+    components: makeComponents({ hdd: 'broken', sataCable1: 'working', ssd: 'working' }),
     fixes: [
       {
         componentId: 'sataCable1',
@@ -365,37 +365,44 @@ export const LEVELS: LevelData[] = [
       },
       {
         componentId: 'hdd',
+        toolId: 'diagnosticDisk',
+        description: '✅ SMART dijagnostika pokazuje loše sektore! HDD je nepopravljiv i trebava zamjenu.',
+        targetStatus: 'broken',
+      },
+      {
+        componentId: 'hdd',
         toolId: 'screwdriver',
-        description: '✅ Pokvareni HDD je izvađen iz kućišta s odvijačem! Jasno se vidi da je disk oštećen.',
+        description: '✅ Pokvareni HDD je izvađen iz kućišta s odvijačem!',
         targetStatus: 'removed',
       },
       {
-        componentId: 'ssd',
+        componentId: 'hdd',
         toolId: 'replacement',
-        description: '✅ Novi SSD disk je instaliran u kućište! Brži je i bez pokretnih dijelova.',
+        description: '✅ SSD je sada aktivni disk! Zamjena je gotova - sistem koristi SSD umjesto HDD-a.',
         targetStatus: 'working',
       },
       {
         componentId: 'sataCable1',
         toolId: 'hand',
-        description: '✅ SATA kabel je ponovno spojen - od matične ploče do novog SSD-a! Disk je sada prepoznat.',
+        description: '✅ SATA kabel je ponovno spojen - sada je povezan sa SSD-om!',
         targetStatus: 'working',
       },
     ],
     diagnostics: [
       { componentId: 'hdd', toolId: 'magnifier', message: '🔍 Hard disk proizvodi glasne zvukove klikanja i krekanja - to je "CLICK OF DEATH"! Mehanički dio diska je ozbiljno oštećen. Disk će uskoro potpuno zatajiti i neće se moći čitati!', type: 'error' },
-      { componentId: 'hdd', toolId: 'diagnosticDisk', message: '💿 SMART dijagnostika HDD-a:\n❌ Reallocirani sektori: 1,247 (KRITIČNO!)\n❌ Seek Error Rate: EKSTREMNO VISOK\n❌ Spin Retry Count: 47\n⚠️ Temperatura: 56°C (visoka)\n⚠️ Radno vrijeme: 45,231 sati (Star disk!)\n🔴 DISK JE MRTAV - ZAMJENA JE HITAN PRIORITET!', type: 'error' },
+      { componentId: 'hdd', toolId: 'diagnosticDisk', message: '💿 SMART dijagnostika HDD-a:\n\n❌ LOŠI SEKTORI: 2,431 pronađenih ❌\n❌ Reallocirani sektori: 1,247 (KRITIČNO!)\n❌ Pending Sectors: 184\n❌ Seek Error Rate: EKSTREMNO VISOK\n❌ Spin Retry Count: 47\n\n⚠️ Temperatura: 56°C (previsoka)\n⚠️ Radno vrijeme: 45,231 sati (Star disk!)\n\n🔴 DISK JE MRTAV - ZAMJENA JE NUŽNA!\n🟢 SSD je dostupan kao zamjena za pohranu.',
+        type: 'error' },
       { componentId: 'sataCable1', toolId: 'magnifier', message: '🔍 SATA kabel je labav! Veza između HDD-a i matične ploče nije sigurna i diskontinuirana je.', type: 'warning' },
-      { componentId: 'ssd', toolId: 'magnifier', message: '🔍 Novi SSD disk je čist, ne vidljivo oštećenja. Spreman za instalaciju.', type: 'info' },
-      { componentId: 'ssd', toolId: 'diagnosticDisk', message: '💿 SSD SMART status: ✅ Nova konekcija detektovana. Disk je zdrav. Broj životnog vijeka: 100% (potpuno nov). Brzina čitanja: 550MB/s, pisanja: 520MB/s.', type: 'info' },
+      { componentId: 'ssd', toolId: 'magnifier', message: '🔍 SSD disk je čist i vidljivo ispravan. Spreman za korištenje kao primarni disk.', type: 'info' },
+      { componentId: 'ssd', toolId: 'diagnosticDisk', message: '💿 SSD SMART status: ✅ Zdravo\n\n✅ LOŠI SEKTORI: 0\n✅ Reallocirani sektori: 0\n✅ Temperatura: 35°C\n✅ Broj životnog vijeka: 100%\n\n⚡ Brzina čitanja: 550MB/s\n⚡ Brzina pisanja: 520MB/s\n\n🟢 SSD je spreman za korištenje kao sistem disk!', type: 'info' },
       { componentId: 'cpu', toolId: 'magnifier', message: '🔍 Procesor izgleda u redu. Temperatura: 52°C.', type: 'info' },
       { componentId: 'ram1', toolId: 'magnifier', message: '🔍 RAM memorija je ispravna.', type: 'info' },
       { componentId: 'gpu', toolId: 'magnifier', message: '🔍 Grafička kartica je u redu.', type: 'info' },
       { componentId: 'motherboard', toolId: 'magnifier', message: '🔍 Matična ploča izgleda ispravno. SATA priključci su OK.', type: 'info' },
     ],
-    completionMessage: '🏆 Genijalno! Zamijenili ste stari pokvareni HDD novim bržim SSD-om. Računalo se sada pali za 12 sekundi umjesto 2+ minute!',
-    educationalNote: '📖 HDD (Hard Disk Drive) ima mehaničke dijelove (rotirajući disk, glava za čitanje) koji se s vremenom troše i mogu se oštetiti. "Click of death" su karakteristični zvukovi koji znače da je glava zapela i disk gubi podatke. SSD (Solid State Drive) nema pokretnih dijelova, puno je brži (4-10x) i izdržljiviji. Moderni SSD-ovi koriste NVMe (M.2) umjesto SATA-e.',
-    hint: '💡 Slijedi red: Prvo dijagnostičkim diskom potvrdite kvar HDD-a, zatim odvijačem odspojite SATA kabel, pa zamijenite stari disk novim SSD-om i na kraju ponovno spojite SATA kabel. Redoslijed je bitan!',
+    completionMessage: '🏆 Odličan rad! Uklonili ste pokvareni HDD i sada sistem koristi brži SSD. Računalo će se pokrenuti za samo 12 sekundi umjesto 2+ minute! Problem s clicking zvukovima je otklonjen.',
+    educationalNote: '📖 HDD (Hard Disk Drive) ima mehaničke dijelove (rotirajući disk, glava za čitanje) koji se s vremenom troše i mogu se oštetiti. "Click of Death" zvukovi znače da je glava zapela i disk gubi podatke - sektori se oštećuju i nisu više čitljivi. SSD (Solid State Drive) nema pokretnih dijelova, puno je brži (4-10x) i izdržljiviji. LOŠI SEKTORI znače da su određena mjesta na disku fizički oštećena i ne mogu se koristiti - to je sigurni znakovanje problema.',
+    hint: '💡 Redoslijed: 1) Odvijač na SATA kabel1 2) Dijagnostički disk na HDD 3) Odvijač na HDD 4) Zamjena (SSD) 5) Ruka na SATA kabel1',
   },
 
   // LEVEL 6
@@ -437,7 +444,7 @@ export const LEVELS: LevelData[] = [
   // LEVEL 7
   {
     id: 7,
-    name: 'Kombinirani problemi - Izazov!',
+    name: 'Nema čega nema',
     description: 'Računalo ima VIŠE problema istovremeno! Pregrijava se, povremeno plavi ekran, i monitor gubi signal. Ovo je pravi izazov za dijagnostičara!',
     symptoms: [
       '🔥 Računalo se pregrijava i povremeno se gasi.',

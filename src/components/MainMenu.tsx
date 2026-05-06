@@ -1,68 +1,75 @@
-
-
 interface Props {
   onStart: () => void;
 }
 
 export default function MainMenu({ onStart }: Props) {
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0a0a1a] via-[#111827] to-[#0a0a1a] text-white relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/3 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen w-full flex items-center justify-center text-white px-6" style={{ backgroundColor: '#14171c' }}>
+      
+      <div className="w-full max-w-5xl">
+        
+        {/* Title section */}
+        <div className="mb-16">
+          <div className="text-5xl mb-4">🖥️</div>
 
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-        backgroundSize: '40px 40px'
-      }} />
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight animate-title-glow">
+            PC Dijagnostika
+          </h1>
 
-      <div className="relative z-10 text-center">
-        {/* PC Icon */}
-        <div className="text-8xl mb-6 animate-float">🖥️</div>
+          <div className="w-20 h-1 mt-4 mb-6 rounded-full" style={{ backgroundColor: '#22c3a6' }} />
 
-        {/* Title */}
-        <h1 className="text-6xl font-black mb-3 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent animate-title-glow">
-          PC DIJAGNOSTIKA
-        </h1>
-        <p className="text-xl text-gray-400 mb-2">Igrica za popravak i dijagnostiku računala</p>
-        <p className="text-sm text-gray-500 mb-12">Koristi alate, dijagnosticiraj probleme i popravi računalo!</p>
+          <p className="text-gray-400 max-w-md">
+            Igra u kojoj rješavaš kvarove na računalima koristeći razne alate i logiku.
+          </p>
+        </div>
 
-        {/* Start button */}
+        {/* CTA */}
         <button
           onClick={onStart}
-          className="group relative px-12 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xl font-bold rounded-xl 
-                     hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] 
-                     active:scale-95 cursor-pointer"
+          className="mb-16 px-8 py-3 transition-all duration-200 rounded-lg font-semibold"
+          style={{ 
+            backgroundColor: '#22c3a6',
+            color: '#0a0a0a',
+            border: '1px solid #22c3a6'
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
         >
-          <span className="relative z-10">Započni igru</span>
+          Započni igru →
         </button>
 
-        {/* Info cards */}
-        <div className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="text-3xl mb-2">🔧</div>
-            <h3 className="font-bold text-sm text-cyan-400">8 Alata</h3>
-            <p className="text-xs text-gray-400 mt-1">Povećalo, odvijač, termalna kamera i više...</p>
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          
+          <div className="p-5 rounded-lg border transition-all" style={{ backgroundColor: 'rgba(22, 28, 35, 0.7)', borderColor: 'rgba(42, 49, 66, 0.8)', cursor: 'pointer' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(30, 40, 50, 0.9)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(22, 28, 35, 0.7)')}>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c3a6' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E" alt="Dijagnostika" className="w-8 h-8 mb-2" />
+            <h3 className="font-semibold mb-1">Dijagnostika</h3>
+            <p className="text-sm text-gray-400">
+              Istraži hardver i pronađite uzrok problema koristeći test alate.
+            </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <div className="text-3xl mb-2">🎯</div>
-            <h3 className="font-bold text-sm text-cyan-400">Puno levela</h3>
-            <p className="text-xs text-gray-400 mt-1">Suoči se raznim problemima, od laganih do teških problema</p>
+
+          <div className="p-5 rounded-lg border transition-all" style={{ backgroundColor: 'rgba(22, 28, 35, 0.7)', borderColor: 'rgba(42, 49, 66, 0.8)', cursor: 'pointer' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(30, 40, 50, 0.9)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(22, 28, 35, 0.7)')}>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c3a6' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3C/svg%3E" alt="Održavanje" className="w-8 h-8 mb-2" />
+            <h3 className="font-semibold mb-1">Održavanje</h3>
+            <p className="text-sm text-gray-400">
+              Čisti prašinu, zamjenjuj komponente i vrati sistem na noge.
+            </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <div className="text-3xl mb-2">📚</div>
-            <h3 className="font-bold text-sm text-cyan-400">Učenje</h3>
-            <p className="text-xs text-gray-400 mt-1">Nauči kako dijagnosticirati prava računala</p>
+
+          <div className="p-5 rounded-lg border transition-all" style={{ backgroundColor: 'rgba(22, 28, 35, 0.7)', borderColor: 'rgba(42, 49, 66, 0.8)', cursor: 'pointer' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(30, 40, 50, 0.9)')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(22, 28, 35, 0.7)')}>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c3a6' stroke-width='2'%3E%3Cpath d='M4 19.5A2.5 2.5 0 0 1 6.5 17H7v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3h.5a2.5 2.5 0 0 1 0 5z'%3E%3C/path%3E%3Crect x='2' y='3' width='20' height='14' rx='2' ry='2'%3E%3C/rect%3E%3C/svg%3E" alt="Edukacija" className="w-8 h-8 mb-2" />
+            <h3 className="font-semibold mb-1">Edukacija</h3>
+            <p className="text-sm text-gray-400">
+              Nauči kako funkcionira PC i što može pošli po zlu u hardveru.
+            </p>
           </div>
+
         </div>
 
         {/* Footer */}
-        <p className="mt-12 text-xs text-gray-600">
-          Napravljeno za učenike 👨‍🎓 | Napravila Sanja Šajfar
+        <p className="mt-16 text-xs text-gray-500">
+          Napravljeno za učenike | Sanja Šajfar™ 
         </p>
       </div>
     </div>
