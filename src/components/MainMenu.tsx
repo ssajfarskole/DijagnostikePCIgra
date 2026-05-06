@@ -13,7 +13,7 @@ export default function MainMenu({ onStart }: Props) {
           <div className="text-5xl mb-4">🖥️</div>
 
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight animate-title-glow">
-            PC Dijagnostika
+            Hardverska dijagnostika
           </h1>
 
           <div className="w-20 h-1 mt-4 mb-6 rounded-full" style={{ backgroundColor: '#22c3a6' }} />
