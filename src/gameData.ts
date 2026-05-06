@@ -363,12 +363,7 @@ export const LEVELS: LevelData[] = [
         description: '✅ SATA kabel za HDD je odspojen od matične ploče!',
         targetStatus: 'removed',
       },
-      {
-        componentId: 'hdd',
-        toolId: 'diagnosticDisk',
-        description: '✅ SMART dijagnostika pokazuje loše sektore! HDD je nepopravljiv i trebava zamjenu.',
-        targetStatus: 'broken',
-      },
+      // IZBAČEN HDD + diagnosticDisk jer to sad rješava tvoj IF blok u logici
       {
         componentId: 'hdd',
         toolId: 'screwdriver',
@@ -378,13 +373,13 @@ export const LEVELS: LevelData[] = [
       {
         componentId: 'hdd',
         toolId: 'replacement',
-        description: '✅ SSD je sada aktivni disk! Zamjena je gotova - sistem koristi SSD umjesto HDD-a.',
+        description: '✅ SSD je sada aktivni disk! Zamjena je gotova.',
         targetStatus: 'working',
       },
       {
         componentId: 'sataCable1',
         toolId: 'hand',
-        description: '✅ SATA kabel je ponovno spojen - sada je povezan sa SSD-om!',
+        description: '✅ SATA kabel je ponovno spojen na SSD!',
         targetStatus: 'working',
       },
     ],

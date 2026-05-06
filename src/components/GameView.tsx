@@ -6,6 +6,7 @@ import PCCase from './PCCase';
 
 const PSU_POWER_CABLE_IDS = ['mainPowerCable', 'cpuMboCable', 'cpuPowerCable', 'gpuPowerCable', 'sataCable1', 'sataCable2'] as const;
 
+
 function getDisconnectedPowerCables(components: ComponentState[]): string[] {
   return components
     .filter(comp => PSU_POWER_CABLE_IDS.includes(comp.id as typeof PSU_POWER_CABLE_IDS[number]) && comp.status !== 'working')
@@ -173,6 +174,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     }
   }, [log]);
 
+  
   const addLog = useCallback((message: string, type: LogEntry['type']) => {
     setLog(prev => [...prev, { id: nextId.current++, message, type }]);
   }, []);
@@ -203,6 +205,8 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     if (!comp) return;
 
     setActionCount(prev => prev + 1);
+
+    
     
     // Validate prerequisites before checking for fixes
     if (selectedTool === 'screwdriver' && comp.status !== 'removed') {
