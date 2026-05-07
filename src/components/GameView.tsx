@@ -141,7 +141,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
 
   const validateAllSteps = useCallback((currentComponents: ComponentState[]) => {
     // Tools that require explicit user interaction and shouldn't auto-validate
-    const explicitInteractionTools = ['diagnosticDisk', 'replacement', 'thermalPaste', 'powerTester', 'postCard', 'thermalCamera'];
+    const explicitInteractionTools = ['diagnosticDisk', 'replacement', 'thermalPaste', 'powerTester', 'postCard', 'thermalCamera', 'compressedAir'];
     
     setAppliedFixes(prev => {
       const next = new Set(prev);
@@ -244,6 +244,8 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     );
 
     if (fix) {
+      const fixKey = getFixKey(fix);
+
       // Special conditions for some fixes
       if (fix.componentId === 'cpu' && fix.toolId === 'thermalPaste') {
         const cpuFan = components.find(c => c.id === 'cpuFan');
@@ -386,6 +388,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
         c.id === fix.componentId ? { ...c, status: fix.targetStatus as ComponentStatus } : c
       );
       setComponents(nextComponents);
+      setAppliedFixes(prev => new Set(prev).add(fixKey));
       validateAllSteps(nextComponents);
 
       addLog(fix.description, 'success');
@@ -598,24 +601,36 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
     const comp = components.find(c => c.id === componentId);
     if (!comp || comp.status !== 'removed') return;
 
+    const nextComponents = components.map(c => 
+      c.id === componentId ? { ...c, status: 'working' as ComponentStatus } : c
+    );
+
     const handFix = level.fixes.find(
       fix => fix.componentId === componentId && fix.toolId === 'hand' && fix.targetStatus === 'working'
     );
 
+    const replacementFallback = level.fixes.find(
+      fix => fix.componentId === componentId && fix.toolId === 'replacement' && fix.targetStatus === 'working'
+    );
+
     setActionCount(prev => prev + 1);
-    setComponents(prev => prev.map(c => 
-      c.id === componentId ? { ...c, status: 'working' as ComponentStatus } : c
-    ));
+    setComponents(nextComponents);
+    validateAllSteps(nextComponents);
 
     if (handFix) {
       const fixKey = getFixKey(handFix);
       if (!appliedFixes.has(fixKey)) {
         setAppliedFixes(prev => new Set([...prev, fixKey]));
       }
+    } else if (replacementFallback) {
+      const fixKey = getFixKey(replacementFallback);
+      if (!appliedFixes.has(fixKey)) {
+        setAppliedFixes(prev => new Set([...prev, fixKey]));
+      }
     }
 
     addLog(`✋ ${comp.name} vraćen na mjesto! Sada možete nastaviti s popravkom.`, 'success');
-  }, [components, level.fixes, appliedFixes, addLog]);
+  }, [components, level.fixes, appliedFixes, addLog, validateAllSteps]);
 
   const handleHint = () => {
     setHintUsed(true);
@@ -763,7 +778,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
                     <div className={`w-3 h-3 rounded-sm border ${isDone ? 'border-gray-600' : 'border-gray-600'}`} style={{ backgroundColor: isDone ? '#22c3a6' : 'transparent', borderColor: isDone ? '#22c3a6' : '#4b5563' }}>
                       {isDone && '✓'}
                     </div>
-                    <span>Korak {i + 1}</span>
+                    <span className="font-semibold">Korak {i + 1}</span>
                   </div>
                 );
               })}
@@ -772,7 +787,7 @@ export default function GameView({ levelId, onLevelComplete, onBack }: Props) {
                 <div className={`w-3 h-3 rounded-sm border ${isPoweredOn ? 'border-gray-600' : 'border-gray-600'}`} style={{ backgroundColor: isPoweredOn ? '#22c3a6' : 'transparent', borderColor: isPoweredOn ? '#22c3a6' : '#4b5563' }}>
                   {isPoweredOn && '✓'}
                 </div>
-                <span>Korak {level.fixes.length + 1}</span>
+                <span className="font-semibold">Korak {level.fixes.length + 1}</span>
               </div>
             </div>
           </div>

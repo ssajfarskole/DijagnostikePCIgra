@@ -553,7 +553,7 @@ export const LEVELS: LevelData[] = [
   // LEVEL 8 - Loose cables
   {
     id: 8,
-    name: 'Labavi kablovi - Nema slike i zvuka',
+    name: 'Nema slike i zvuka',
     description: 'Računalo se pali, ali nema slike na monitoru i nema zvuka iz zvučnika. Ventilatori rade normalno.',
     symptoms: [
       '📺 Monitor prikazuje poruku "No Signal".',
